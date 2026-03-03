@@ -19,6 +19,17 @@ class CommandLine:
     Provides single plant and batch file processing modes.
     """
     
+    # Color codes for better terminal output
+    HEADER = '\033[95m'
+    BLUE = '\033[94m'
+    CYAN = '\033[96m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    END = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    
     def __init__(self):
         """Initialize the CLI with all required components"""
         self.db = PlantDatabase()
@@ -30,33 +41,45 @@ class CommandLine:
         """Get current hour (0-23)"""
         return datetime.now().hour
     
+    def _colored(self, text: str, color: str) -> str:
+        """Apply color to text (graceful fallback for non-ANSI terminals)"""
+        try:
+            return f"{color}{text}{self.END}"
+        except:
+            return text
+    
     def display_header(self):
         """Display application header with current date/time"""
         now = datetime.now()
         date_str = now.strftime("%A, %B %d, %Y")
         time_str = now.strftime("%H:%M:%S")
         
-        print("\n" + "=" * 60)
-        print("[GARDEN MANAGER] Plant Care Recommendations")
-        print("=" * 60)
-        print(f"Date: {date_str}")
-        print(f"Time: {time_str}")
-        print("=" * 60 + "\n")
+        print("\n")
+        print(self._colored("+-------------------------------------------------------+", self.CYAN))
+        print(self._colored("|", self.CYAN) + self._colored("      GARDEN MANAGER - Plant Care Recommendations        ", self.BOLD) + self._colored("|", self.CYAN))
+        print(self._colored("+-------------------------------------------------------+", self.CYAN))
+        print()
+        print(f"  Date: {self._colored(date_str, self.GREEN)}")
+        print(f"  Time: {self._colored(time_str, self.GREEN)}")
+        print()
     
     def display_weather(self):
         """Display current weather information"""
         try:
             weather = self.weather.fetch_weather()
             if weather is None:
-                print("[WARNING] Could not fetch weather data\n")
+                print(self._colored("  !! Could not fetch weather data\n", self.YELLOW))
                 return
-            print(f"[WEATHER] Current Weather in {weather.location}:")
-            print(f"   Temperature: {weather.temperature}C")
-            print(f"   Humidity: {weather.humidity}%")
-            print(f"   Precipitation: {weather.precipitation}mm")
+            
+            print(self._colored("  +- WEATHER INFO -----------------------------------------------+", self.BLUE))
+            print(self._colored("  |", self.BLUE) + f" Location: {weather.location}")
+            print(self._colored("  |", self.BLUE) + f" Temperature: {self._colored(f'{weather.temperature}C', self.YELLOW)}")
+            print(self._colored("  |", self.BLUE) + f" Humidity: {self._colored(f'{weather.humidity}%', self.CYAN)}")
+            print(self._colored("  |", self.BLUE) + f" Precipitation: {self._colored(f'{weather.precipitation}mm', self.CYAN)}")
+            print(self._colored("  +-------------------------------------------------------+", self.BLUE))
             print()
         except Exception as e:
-            print(f"[WARNING] Could not fetch weather: {e}\n")
+            print(self._colored(f"  !! Could not fetch weather: {e}\n", self.YELLOW))
     
     def process_single_plant(self, plant_name: str) -> bool:
         """
@@ -72,16 +95,16 @@ class CommandLine:
         try:
             weather_data = self.weather.fetch_weather()
             if weather_data is None:
-                print("[ERROR] Could not fetch weather data")
+                print(self._colored("  [X] Could not fetch weather data\n", self.RED))
                 return False
         except Exception as e:
-            print(f"[ERROR] Could not fetch weather data: {e}")
+            print(self._colored(f"  [X] Could not fetch weather data: {e}\n", self.RED))
             return False
         
         # Get plant
         plant = self.db.get_plant(plant_name)
         if plant is None:
-            print(f"[ERROR] Plant '{plant_name}' not found in database")
+            print(self._colored(f"  [X] Plant '{plant_name}' not found in database\n", self.RED))
             return False
         
         # Display plant info
@@ -102,53 +125,54 @@ class CommandLine:
         # Parse file
         plants = self.parser.parse_file(file_path)
         if plants is None:
-            print(f"[ERROR] File not found: {file_path}")
+            print(self._colored(f"  [X] File not found: {file_path}\n", self.RED))
             return {"total": 0, "found": 0, "not_found": 0, "errors": []}
         
         if len(plants) == 0:
-            print(f"[ERROR] No plants found in file: {file_path}")
+            print(self._colored(f"  [X] No plants found in file: {file_path}\n", self.RED))
             return {"total": 0, "found": 0, "not_found": 0, "errors": []}
         
         # Check for duplicates
         unique_plants, duplicates = self.parser.get_unique_plants(plants)
         if duplicates:
-            print(f"[WARNING] {len(duplicates)} duplicate(s) found - processing unique names only\n")
+            print(self._colored(f"  !! {len(duplicates)} duplicate(s) found - processing unique names only\n", self.YELLOW))
         
         # Fetch weather once for all plants
         try:
             weather_data = self.weather.fetch_weather()
             if weather_data is None:
-                print(f"[ERROR] Could not fetch weather data")
+                print(self._colored(f"  [X] Could not fetch weather data\n", self.RED))
                 return {"total": len(unique_plants), "found": 0, "not_found": len(unique_plants), "errors": ["Weather fetch failed"]}
         except Exception as e:
-            print(f"[ERROR] Could not fetch weather data: {e}")
+            print(self._colored(f"  [X] Could not fetch weather data: {e}\n", self.RED))
             return {"total": len(unique_plants), "found": 0, "not_found": len(unique_plants), "errors": [str(e)]}
         
         # Process each plant
         found_count = 0
         not_found = []
         
-        print(f"Processing {len(unique_plants)} plant(s)...\n")
+        print(self._colored(f"  Processing {len(unique_plants)} plant(s)...\n", self.CYAN))
         
         for plant_name in unique_plants:
             plant = self.db.get_plant(plant_name)
             
             if plant is None:
-                print(f"[NOT FOUND] '{plant_name}'")
+                print(self._colored(f"  [X] {plant_name}", self.RED))
                 not_found.append(plant_name)
             else:
                 found_count += 1
                 self._display_plant_info_compact(plant, weather_data)
         
         # Display summary
-        print("\n" + "=" * 60)
-        print("[SUMMARY]")
-        print(f"   Total plants: {len(unique_plants)}")
-        print(f"   Found: {found_count}")
-        print(f"   Not found: {len(not_found)}")
+        print()
+        print(self._colored("  +- BATCH SUMMARY ----------------------------------------------+", self.BLUE))
+        print(self._colored("  |", self.BLUE) + f" Total plants: {self._colored(str(len(unique_plants)), self.BOLD)}")
+        print(self._colored("  |", self.BLUE) + f" Found: {self._colored(str(found_count), self.GREEN)}")
+        print(self._colored("  |", self.BLUE) + f" Not found: {self._colored(str(len(not_found)), self.RED)}")
         if not_found:
-            print(f"   Missing: {', '.join(not_found)}")
-        print("=" * 60 + "\n")
+            print(self._colored("  |", self.BLUE) + f" Missing: {', '.join(not_found)}")
+        print(self._colored("  +-------------------------------------------------------+", self.BLUE))
+        print()
         
         return {
             "total": len(unique_plants),
@@ -161,79 +185,80 @@ class CommandLine:
         """Display comprehensive plant care information"""
         analysis = self.analyzer.analyze_plant_care(plant, weather, self.get_current_hour())
         
-        print("=" * 60)
-        print(f"[PLANT] {plant.common_name}")
-        print(f"   Scientific name: {plant.scientific_name}")
-        print(f"   Type: {plant.botanical_group.title()}")
-        print("=" * 60)
+        # Water status
+        water_status = self._colored("[OK] WATER NOW", self.GREEN) if analysis['should_water_now'] else self._colored("[--] NO WATERING", self.YELLOW)
         
-        print("\n[WATERING]")
-        water_status = "YES" if analysis['should_water_now'] else "NO"
-        print(f"   Should water now: {water_status}")
-        print(f"   Reason: {analysis['watering_reason']}")
-        print(f"   Optimal watering hour: {analysis['optimal_watering_hour']}:00")
-        print(f"   Watering frequency: {analysis['watering_frequency']}")
-        print(f"   Water needs: {analysis['water_needs']}")
-        print(f"   Drought tolerance: {analysis['drought_tolerance']}")
+        # Pre-compute optimal hour to avoid nested f-strings
+        optimal_hour = analysis['optimal_watering_hour']
+        optimal_hour_str = self._colored(f'{optimal_hour}:00', self.BOLD)
         
-        print("\n[SUNSHINE]")
-        print(f"   {analysis['sunshine_recommendation']}")
+        print(self._colored("  +- PLANT INFORMATION ------------------------------------------+", self.GREEN))
+        print(self._colored("  |", self.GREEN) + f" {self._colored(plant.common_name.upper(), self.BOLD)}")
+        print(self._colored("  |", self.GREEN) + f" Scientific: {plant.scientific_name}")
+        print(self._colored("  |", self.GREEN) + f" Type: {plant.botanical_group.title()}")
+        print(self._colored("  +-------------------------------------------------------+", self.GREEN))
+        print()
         
-        print("\n" + "=" * 60 + "\n")
+        print(self._colored("  +- WATERING ANALYSIS ------------------------------------------+", self.CYAN))
+        print(self._colored("  |", self.CYAN) + f" Status: {water_status}")
+        print(self._colored("  |", self.CYAN) + f" Reason: {analysis['watering_reason']}")
+        print(self._colored("  |", self.CYAN))
+        print(self._colored("  |", self.CYAN) + f" Optimal hour: {optimal_hour_str}")
+        print(self._colored("  |", self.CYAN) + f" Frequency: {analysis['watering_frequency']}")
+        print(self._colored("  |", self.CYAN) + f" Water needs: {analysis['water_needs'].upper()}")
+        print(self._colored("  |", self.CYAN) + f" Drought tolerance: {analysis['drought_tolerance'].upper()}")
+        print(self._colored("  +-------------------------------------------------------+", self.CYAN))
+        print()
+        
+        print(self._colored("  +- SUNSHINE REQUIREMENTS ----------------------------------+", self.YELLOW))
+        print(self._colored("  |", self.YELLOW) + f" {analysis['sunshine_recommendation']}")
+        print(self._colored("  +-------------------------------------------------------+", self.YELLOW))
+        print()
     
     def _display_plant_info_compact(self, plant, weather):
         """Display compact plant care information"""
         analysis = self.analyzer.analyze_plant_care(plant, weather, self.get_current_hour())
         
-        water_status = "[YES]" if analysis['should_water_now'] else "[NO]"
-        print(f"{water_status} {plant.common_name}")
-        print(f"   -> {analysis['watering_reason']}")
+        water_status = self._colored("[OK]", self.GREEN) if analysis['should_water_now'] else self._colored("[--]", self.YELLOW)
+        print(f"  {water_status} {self._colored(plant.common_name, self.BOLD)}")
+        print(f"     {self._colored(analysis['watering_reason'], self.CYAN)}")
     
     def run_single_plant_mode(self):
         """Run single plant mode (interactive)"""
         self.display_header()
         self.display_weather()
         
-        plant_name = input("Enter plant name (or 'quit' to exit): ").strip()
+        plant_name = input(self._colored("  Enter plant name (or 'quit' to exit): ", self.BOLD)).strip()
         
         if plant_name.lower() == 'quit':
-            print("Goodbye!\n")
+            print(self._colored("\n  Goodbye! Happy gardening!\n", self.GREEN))
             return
         
         if not plant_name:
-            print("[ERROR] Plant name cannot be empty")
+            print(self._colored("  [X] Plant name cannot be empty\n", self.RED))
             return
         
         success = self.process_single_plant(plant_name)
         
         if not success:
-            print(f"[INFO] Available plants: {', '.join(self.db.get_all_local_plants()[:10])}")
+            plants = self.db.get_all_local_plants()
+            print(self._colored("  Available plants (first 10):", self.CYAN))
+            for i, p in enumerate(plants[:10], 1):
+                print(f"    {i}. {p}")
+            print()
     
     def run_batch_mode(self, file_path: str):
         """Run batch mode (file processing)"""
         self.display_header()
         self.display_weather()
-        
         self.process_plant_file(file_path)
     
-    def run(self, args: Optional[List[str]] = None):
-        """
-        Main entry point for the CLI.
-        
-        Args:
-            args: Command line arguments. If None, will prompt for plant name.
-                 If provided, first argument is plant name or file path
-        """
-        if args and len(args) > 0:
-            # Check if it's a file (batch mode)
-            file_path = args[0]
-            if Path(file_path).exists() or file_path.endswith('.txt'):
-                self.run_batch_mode(file_path)
-            else:
-                # Single plant mode
-                self.display_header()
-                self.display_weather()
-                self.process_single_plant(file_path)
-        else:
+    def run(self, *args):
+        """Main entry point for the CLI"""
+        if len(args) == 0:
             # Interactive mode
             self.run_single_plant_mode()
+        else:
+            # Batch mode with file
+            file_path = args[0]
+            self.run_batch_mode(file_path)
