@@ -11,6 +11,14 @@ from datetime import datetime
 from typing import Dict, Tuple
 from .plant import Plant
 from .weather_data import WeatherData
+from .constants import (
+    TEMP_WATERING_OFFSET,
+    TEMP_VERY_HOT_THRESHOLD,
+    WATERING_FREQ_DAILY,
+    WATERING_FREQ_WEEKLY,
+    WATERING_FREQ_BIWEEKLY,
+    WATERING_FREQ_EVERY_3_WEEKS
+)
 
 
 class GardenAnalyzer:
@@ -83,13 +91,13 @@ class GardenAnalyzer:
         """
         freq = plant.watering_frequency_days
         
-        if freq == 1:
+        if freq == WATERING_FREQ_DAILY:
             return "Daily"
-        elif freq == 7:
+        elif freq == WATERING_FREQ_WEEKLY:
             return "Weekly"
-        elif freq == 14:
+        elif freq == WATERING_FREQ_BIWEEKLY:
             return "Every 2 weeks"
-        elif freq == 21:
+        elif freq == WATERING_FREQ_EVERY_3_WEEKS:
             return "Every 3 weeks"
         else:
             return f"Every {freq} days"
@@ -144,14 +152,14 @@ class GardenAnalyzer:
             }
         
         # Check temperature extremes
-        if plant.temperature_threshold and weather.temperature < (plant.temperature_threshold - 5):
+        if plant.temperature_threshold and weather.temperature < (plant.temperature_threshold - TEMP_WATERING_OFFSET):
             return {
                 "skip": True,
                 "reason": f"Temperature too cold ({weather.temperature}°C) for watering"
             }
         
         # Check for hot conditions (priority over dry)
-        if weather.temperature > 35:
+        if weather.temperature > TEMP_VERY_HOT_THRESHOLD:
             return {
                 "skip": False,
                 "reason": f"✓ Very hot weather ({weather.temperature}°C) - plant needs water urgently"
