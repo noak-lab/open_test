@@ -6,6 +6,12 @@ import requests
 from datetime import datetime
 from typing import Optional
 from .weather_data import WeatherData
+from .constants import (
+    DEFAULT_LOCATION_LATITUDE,
+    DEFAULT_LOCATION_LONGITUDE,
+    DEFAULT_LOCATION_NAME,
+    WEATHER_API_TIMEOUT
+)
 
 # Open-Meteo API endpoint (free, no API key required)
 WEATHER_API_URL = "https://api.open-meteo.com/v1/forecast"
@@ -18,9 +24,9 @@ class WeatherFetcher:
     """
     
     # Default location: Tel Aviv, Israel
-    DEFAULT_LAT = 32.0853
-    DEFAULT_LON = 34.7818
-    DEFAULT_LOCATION = "Tel Aviv, Israel"
+    DEFAULT_LAT = DEFAULT_LOCATION_LATITUDE
+    DEFAULT_LON = DEFAULT_LOCATION_LONGITUDE
+    DEFAULT_LOCATION = DEFAULT_LOCATION_NAME
     DEFAULT_TIMEZONE = "Asia/Jerusalem"
     
     def __init__(
@@ -77,7 +83,7 @@ class WeatherFetcher:
                 "timezone": timezone
             }
             
-            response = requests.get(WEATHER_API_URL, params=params, timeout=10)
+            response = requests.get(WEATHER_API_URL, params=params, timeout=WEATHER_API_TIMEOUT)
             response.raise_for_status()
             
             data = response.json()
