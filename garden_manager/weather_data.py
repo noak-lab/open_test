@@ -5,6 +5,14 @@ WeatherData model for storing current weather information
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
+from .constants import (
+    TEMP_MIN_VALID, TEMP_MAX_VALID,
+    HUMIDITY_MIN_VALID, HUMIDITY_MAX_VALID,
+    HUMIDITY_HUMID_THRESHOLD, HUMIDITY_VERY_HUMID_THRESHOLD, HUMIDITY_DRY_THRESHOLD,
+    TEMP_HOT_THRESHOLD, TEMP_COLD_THRESHOLD,
+    PRECIPITATION_MIN_VALID, PRECIPITATION_RAIN_THRESHOLD,
+    WMO_CLOUDY_THRESHOLD
+)
 
 
 @dataclass
@@ -32,47 +40,45 @@ class WeatherData:
     
     def __post_init__(self):
         """Validate weather data after initialization"""
-        if self.temperature < -50 or self.temperature > 60:
-            raise ValueError("temperature must be between -50 and 60 Celsius")
+        if self.temperature < TEMP_MIN_VALID or self.temperature > TEMP_MAX_VALID:
+            raise ValueError(f"temperature must be between {TEMP_MIN_VALID} and {TEMP_MAX_VALID} Celsius")
         
-        if not (0 <= self.humidity <= 100):
-            raise ValueError("humidity must be between 0 and 100")
+        if not (HUMIDITY_MIN_VALID <= self.humidity <= HUMIDITY_MAX_VALID):
+            raise ValueError(f"humidity must be between {HUMIDITY_MIN_VALID} and {HUMIDITY_MAX_VALID}")
         
-        if self.precipitation < 0:
+        if self.precipitation < PRECIPITATION_MIN_VALID:
             raise ValueError("precipitation cannot be negative")
         
         if not isinstance(self.timestamp, datetime):
             raise ValueError("timestamp must be a datetime object")
     
     def is_humid(self) -> bool:
-        """Check if current humidity is high (>80%)"""
-        return self.humidity > 80
+        """Check if current humidity is high"""
+        return self.humidity > HUMIDITY_HUMID_THRESHOLD
     
     def is_very_humid(self) -> bool:
-        """Check if current humidity is very high (>90%)"""
-        return self.humidity > 90
+        """Check if current humidity is very high"""
+        return self.humidity > HUMIDITY_VERY_HUMID_THRESHOLD
     
     def is_dry(self) -> bool:
-        """Check if current humidity is low (<40%)"""
-        return self.humidity < 40
+        """Check if current humidity is low"""
+        return self.humidity < HUMIDITY_DRY_THRESHOLD
     
     def has_precipitation(self) -> bool:
-        """Check if there is recent precipitation (>1mm)"""
-        return self.precipitation > 1
+        """Check if there is recent precipitation"""
+        return self.precipitation > PRECIPITATION_RAIN_THRESHOLD
     
     def is_hot(self) -> bool:
-        """Check if temperature is hot (>30°C)"""
-        return self.temperature > 30
+        """Check if temperature is hot"""
+        return self.temperature > TEMP_HOT_THRESHOLD
     
     def is_cold(self) -> bool:
-        """Check if temperature is cold (<10°C)"""
-        return self.temperature < 10
+        """Check if temperature is cold"""
+        return self.temperature < TEMP_COLD_THRESHOLD
     
     def is_cloudy(self) -> bool:
-        """Check if weather is cloudy (based on weather code)
-        WMO codes: 1-3 are clear/partly cloudy, >50 indicates clouds/rain
-        """
-        return self.weather_code > 50
+        """Check if weather is cloudy (based on weather code)"""
+        return self.weather_code > WMO_CLOUDY_THRESHOLD
     
     def __str__(self) -> str:
         """Return formatted string representation of weather"""

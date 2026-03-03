@@ -4,6 +4,7 @@ Plant data model representing a plant with its characteristics and care requirem
 
 from dataclasses import dataclass
 from typing import List, Optional
+from .constants import HOURS_PER_DAY, TEMP_MIN_VALID, TEMP_MAX_VALID
 
 
 @dataclass
@@ -57,14 +58,14 @@ class Plant:
         if self.drought_tolerance.lower() not in valid_water_levels:
             raise ValueError(f"drought_tolerance must be one of {valid_water_levels}")
         
-        if not all(0 <= hour <= 23 for hour in self.optimal_watering_hours):
-            raise ValueError("All hours must be between 0 and 23")
+        if not all(0 <= hour < HOURS_PER_DAY for hour in self.optimal_watering_hours):
+            raise ValueError(f"All hours must be between 0 and {HOURS_PER_DAY - 1}")
         
         if self.watering_frequency_days < 1:
             raise ValueError("watering_frequency_days must be at least 1")
         
-        if self.temperature_threshold < -50 or self.temperature_threshold > 60:
-            raise ValueError("temperature_threshold must be between -50 and 60")
+        if self.temperature_threshold < TEMP_MIN_VALID or self.temperature_threshold > TEMP_MAX_VALID:
+            raise ValueError(f"temperature_threshold must be between {TEMP_MIN_VALID} and {TEMP_MAX_VALID}")
     
     def __str__(self) -> str:
         """Return formatted string representation of the plant"""
