@@ -3,5 +3,6 @@ from .weather_data import WeatherData
 from .weather_fetcher import WeatherFetcher
 from .plant_database import PlantDatabase
 from .garden_analyzer import GardenAnalyzer
+from .file_parser import FileParser
 
-__all__ = ["Plant", "WeatherData", "WeatherFetcher", "PlantDatabase", "GardenAnalyzer"]
+__all__ = ["Plant", "WeatherData", "WeatherFetcher", "PlantDatabase", "GardenAnalyzer", "FileParser"]
