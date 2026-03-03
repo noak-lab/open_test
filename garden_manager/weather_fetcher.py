@@ -23,6 +23,33 @@ class WeatherFetcher:
     DEFAULT_LOCATION = "Tel Aviv, Israel"
     DEFAULT_TIMEZONE = "Asia/Jerusalem"
     
+    def __init__(
+        self,
+        latitude: float = DEFAULT_LAT,
+        longitude: float = DEFAULT_LON,
+        location: str = DEFAULT_LOCATION,
+        timezone: str = DEFAULT_TIMEZONE
+    ):
+        """Initialize WeatherFetcher with location details"""
+        self.latitude = latitude
+        self.longitude = longitude
+        self.location = location
+        self.timezone = timezone
+    
+    def fetch_weather(self) -> Optional[WeatherData]:
+        """
+        Fetch current weather data for the configured location.
+        
+        Returns:
+            WeatherData object with current conditions, or None if fetch fails
+        """
+        return self.get_current_weather(
+            latitude=self.latitude,
+            longitude=self.longitude,
+            location=self.location,
+            timezone=self.timezone
+        )
+    
     @staticmethod
     def get_current_weather(
         latitude: float = DEFAULT_LAT,
