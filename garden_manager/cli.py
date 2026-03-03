@@ -11,6 +11,7 @@ from .plant_database import PlantDatabase
 from .weather_fetcher import WeatherFetcher
 from .garden_analyzer import GardenAnalyzer
 from .file_parser import FileParser
+from .constants import AVAILABLE_PLANTS_DISPLAY_LIMIT
 
 
 class CommandLine:
@@ -242,8 +243,8 @@ class CommandLine:
         
         if not success:
             plants = self.db.get_all_local_plants()
-            print(self._colored("  Available plants (first 10):", self.CYAN))
-            for i, p in enumerate(plants[:10], 1):
+            print(self._colored(f"  Available plants (first {AVAILABLE_PLANTS_DISPLAY_LIMIT}):", self.CYAN))
+            for i, p in enumerate(plants[:AVAILABLE_PLANTS_DISPLAY_LIMIT], 1):
                 print(f"    {i}. {p}")
             print()
     
