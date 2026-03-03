@@ -8,6 +8,37 @@ from typing import Optional, Dict, List
 from pathlib import Path
 import requests
 from .plant import Plant
+from .constants import (
+    WATERING_HOUR_EARLY_MORNING,
+    WATERING_HOUR_MID_MORNING,
+    WATERING_HOUR_LATE_MORNING_1,
+    WATERING_HOUR_LATE_MORNING_2,
+    WATERING_HOUR_LATE_MORNING_3,
+    WATERING_HOUR_EVENING_1,
+    WATERING_HOUR_EVENING_2,
+    WATERING_FREQ_DAILY,
+    WATERING_FREQ_EVERY_2_DAYS,
+    WATERING_FREQ_EVERY_3_DAYS,
+    WATERING_FREQ_WEEKLY,
+    WATERING_FREQ_EVERY_10_DAYS,
+    WATERING_FREQ_BIWEEKLY,
+    WATERING_FREQ_EVERY_3_WEEKS,
+    PLANT_MIN_TEMP_TOMATO,
+    PLANT_MIN_TEMP_CUCUMBER,
+    PLANT_MIN_TEMP_LETTUCE,
+    PLANT_MIN_TEMP_BASIL,
+    PLANT_MIN_TEMP_MINT,
+    PLANT_MIN_TEMP_ROSEMARY,
+    PLANT_MIN_TEMP_ROSE,
+    PLANT_MIN_TEMP_SUNFLOWER,
+    PLANT_MIN_TEMP_TULIP,
+    PLANT_MIN_TEMP_LEMON,
+    PLANT_MIN_TEMP_ALOE,
+    PLANT_MIN_TEMP_CACTUS,
+    PLANT_MIN_TEMP_JADE,
+    PLANT_MIN_TEMP_OLIVE,
+    TREFLE_API_TIMEOUT
+)
 
 # Cache directory for storing plant data
 CACHE_DIR = Path.home() / ".garden_manager_cache"
@@ -29,9 +60,9 @@ class PlantDatabase:
             botanical_group="vegetable",
             water_needs="high",
             drought_tolerance="low",
-            optimal_watering_hours=[6, 7, 8],
-            watering_frequency_days=1,
-            temperature_threshold=25,
+            optimal_watering_hours=[WATERING_HOUR_EARLY_MORNING, WATERING_HOUR_MID_MORNING, WATERING_HOUR_LATE_MORNING_1],
+            watering_frequency_days=WATERING_FREQ_DAILY,
+            temperature_threshold=PLANT_MIN_TEMP_TOMATO,
             sunshine_requirement="Full sun (6-8 hours)",
             found_in_cache=True
         ),
@@ -41,9 +72,9 @@ class PlantDatabase:
             botanical_group="vegetable",
             water_needs="high",
             drought_tolerance="low",
-            optimal_watering_hours=[6, 7],
-            watering_frequency_days=1,
-            temperature_threshold=22,
+            optimal_watering_hours=[WATERING_HOUR_EARLY_MORNING, WATERING_HOUR_MID_MORNING],
+            watering_frequency_days=WATERING_FREQ_DAILY,
+            temperature_threshold=PLANT_MIN_TEMP_CUCUMBER,
             sunshine_requirement="Full sun",
             found_in_cache=True
         ),
@@ -53,9 +84,9 @@ class PlantDatabase:
             botanical_group="vegetable",
             water_needs="medium",
             drought_tolerance="low",
-            optimal_watering_hours=[7, 8],
-            watering_frequency_days=1,
-            temperature_threshold=18,
+            optimal_watering_hours=[WATERING_HOUR_MID_MORNING, WATERING_HOUR_LATE_MORNING_1],
+            watering_frequency_days=WATERING_FREQ_DAILY,
+            temperature_threshold=PLANT_MIN_TEMP_LETTUCE,
             sunshine_requirement="Partial shade (4-6 hours)",
             found_in_cache=True
         ),
@@ -66,9 +97,9 @@ class PlantDatabase:
             botanical_group="herb",
             water_needs="medium",
             drought_tolerance="low",
-            optimal_watering_hours=[7, 19],
-            watering_frequency_days=1,
-            temperature_threshold=22,
+            optimal_watering_hours=[WATERING_HOUR_MID_MORNING, WATERING_HOUR_EVENING_1],
+            watering_frequency_days=WATERING_FREQ_DAILY,
+            temperature_threshold=PLANT_MIN_TEMP_BASIL,
             sunshine_requirement="Full sun",
             found_in_cache=True
         ),
@@ -78,9 +109,9 @@ class PlantDatabase:
             botanical_group="herb",
             water_needs="medium",
             drought_tolerance="medium",
-            optimal_watering_hours=[7, 8],
-            watering_frequency_days=2,
-            temperature_threshold=18,
+            optimal_watering_hours=[WATERING_HOUR_MID_MORNING, WATERING_HOUR_LATE_MORNING_1],
+            watering_frequency_days=WATERING_FREQ_EVERY_2_DAYS,
+            temperature_threshold=PLANT_MIN_TEMP_MINT,
             sunshine_requirement="Partial shade",
             found_in_cache=True
         ),
@@ -90,9 +121,9 @@ class PlantDatabase:
             botanical_group="herb",
             water_needs="low",
             drought_tolerance="high",
-            optimal_watering_hours=[8, 9],
-            watering_frequency_days=3,
-            temperature_threshold=15,
+            optimal_watering_hours=[WATERING_HOUR_LATE_MORNING_1, WATERING_HOUR_LATE_MORNING_2],
+            watering_frequency_days=WATERING_FREQ_EVERY_3_DAYS,
+            temperature_threshold=PLANT_MIN_TEMP_ROSEMARY,
             sunshine_requirement="Full sun",
             found_in_cache=True
         ),
@@ -103,9 +134,9 @@ class PlantDatabase:
             botanical_group="flower",
             water_needs="high",
             drought_tolerance="low",
-            optimal_watering_hours=[6, 18],
-            watering_frequency_days=1,
-            temperature_threshold=20,
+            optimal_watering_hours=[WATERING_HOUR_EARLY_MORNING, WATERING_HOUR_EVENING_1],
+            watering_frequency_days=WATERING_FREQ_DAILY,
+            temperature_threshold=PLANT_MIN_TEMP_ROSE,
             sunshine_requirement="Full sun (6+ hours)",
             found_in_cache=True
         ),
@@ -115,9 +146,9 @@ class PlantDatabase:
             botanical_group="flower",
             water_needs="medium",
             drought_tolerance="medium",
-            optimal_watering_hours=[7, 8],
-            watering_frequency_days=2,
-            temperature_threshold=25,
+            optimal_watering_hours=[WATERING_HOUR_MID_MORNING, WATERING_HOUR_LATE_MORNING_1],
+            watering_frequency_days=WATERING_FREQ_EVERY_2_DAYS,
+            temperature_threshold=PLANT_MIN_TEMP_SUNFLOWER,
             sunshine_requirement="Full sun",
             found_in_cache=True
         ),
@@ -127,9 +158,9 @@ class PlantDatabase:
             botanical_group="flower",
             water_needs="medium",
             drought_tolerance="medium",
-            optimal_watering_hours=[8, 9],
-            watering_frequency_days=2,
-            temperature_threshold=15,
+            optimal_watering_hours=[WATERING_HOUR_LATE_MORNING_1, WATERING_HOUR_LATE_MORNING_2],
+            watering_frequency_days=WATERING_FREQ_EVERY_2_DAYS,
+            temperature_threshold=PLANT_MIN_TEMP_TULIP,
             sunshine_requirement="Full sun to partial shade",
             found_in_cache=True
         ),
@@ -140,9 +171,9 @@ class PlantDatabase:
             botanical_group="succulent",
             water_needs="very_low",
             drought_tolerance="very_high",
-            optimal_watering_hours=[9, 10],
-            watering_frequency_days=14,
-            temperature_threshold=10,
+            optimal_watering_hours=[WATERING_HOUR_LATE_MORNING_2, WATERING_HOUR_LATE_MORNING_3],
+            watering_frequency_days=WATERING_FREQ_BIWEEKLY,
+            temperature_threshold=PLANT_MIN_TEMP_ALOE,
             sunshine_requirement="Full sun",
             found_in_cache=True
         ),
@@ -152,9 +183,9 @@ class PlantDatabase:
             botanical_group="cacti",
             water_needs="very_low",
             drought_tolerance="very_high",
-            optimal_watering_hours=[9, 10],
-            watering_frequency_days=21,
-            temperature_threshold=15,
+            optimal_watering_hours=[WATERING_HOUR_LATE_MORNING_2, WATERING_HOUR_LATE_MORNING_3],
+            watering_frequency_days=WATERING_FREQ_EVERY_3_WEEKS,
+            temperature_threshold=PLANT_MIN_TEMP_CACTUS,
             sunshine_requirement="Full sun",
             found_in_cache=True
         ),
@@ -164,9 +195,9 @@ class PlantDatabase:
             botanical_group="succulent",
             water_needs="low",
             drought_tolerance="high",
-            optimal_watering_hours=[9, 10],
-            watering_frequency_days=10,
-            temperature_threshold=12,
+            optimal_watering_hours=[WATERING_HOUR_LATE_MORNING_2, WATERING_HOUR_LATE_MORNING_3],
+            watering_frequency_days=WATERING_FREQ_EVERY_10_DAYS,
+            temperature_threshold=PLANT_MIN_TEMP_JADE,
             sunshine_requirement="Bright indirect light",
             found_in_cache=True
         ),
@@ -177,9 +208,9 @@ class PlantDatabase:
             botanical_group="tree",
             water_needs="high",
             drought_tolerance="medium",
-            optimal_watering_hours=[7, 8],
-            watering_frequency_days=2,
-            temperature_threshold=20,
+            optimal_watering_hours=[WATERING_HOUR_MID_MORNING, WATERING_HOUR_LATE_MORNING_1],
+            watering_frequency_days=WATERING_FREQ_EVERY_2_DAYS,
+            temperature_threshold=PLANT_MIN_TEMP_LEMON,
             sunshine_requirement="Full sun (8+ hours)",
             found_in_cache=True
         ),
@@ -189,9 +220,9 @@ class PlantDatabase:
             botanical_group="tree",
             water_needs="low",
             drought_tolerance="high",
-            optimal_watering_hours=[8, 9],
-            watering_frequency_days=7,
-            temperature_threshold=15,
+            optimal_watering_hours=[WATERING_HOUR_LATE_MORNING_1, WATERING_HOUR_LATE_MORNING_2],
+            watering_frequency_days=WATERING_FREQ_WEEKLY,
+            temperature_threshold=PLANT_MIN_TEMP_OLIVE,
             sunshine_requirement="Full sun",
             found_in_cache=True
         ),
@@ -276,7 +307,7 @@ class PlantDatabase:
                 'token': token
             }
             
-            response = requests.get(url, params=params, timeout=5)
+            response = requests.get(url, params=params, timeout=TREFLE_API_TIMEOUT)
             response.raise_for_status()
             
             data = response.json()
@@ -336,65 +367,65 @@ class PlantDatabase:
             "cacti": {
                 "water_needs": "very_low",
                 "drought_tolerance": "very_high",
-                "optimal_hours": [9, 10],
-                "frequency_days": 21,
-                "temp_threshold": 15,
+                "optimal_hours": [WATERING_HOUR_LATE_MORNING_2, WATERING_HOUR_LATE_MORNING_3],
+                "frequency_days": WATERING_FREQ_EVERY_3_WEEKS,
+                "temp_threshold": PLANT_MIN_TEMP_CACTUS,
                 "sunshine": "Full sun"
             },
             "succulent": {
                 "water_needs": "low",
                 "drought_tolerance": "high",
-                "optimal_hours": [9, 10],
-                "frequency_days": 14,
-                "temp_threshold": 12,
+                "optimal_hours": [WATERING_HOUR_LATE_MORNING_2, WATERING_HOUR_LATE_MORNING_3],
+                "frequency_days": WATERING_FREQ_BIWEEKLY,
+                "temp_threshold": PLANT_MIN_TEMP_JADE,
                 "sunshine": "Bright indirect light"
             },
             "vegetable": {
                 "water_needs": "high",
                 "drought_tolerance": "low",
-                "optimal_hours": [6, 7, 8],
-                "frequency_days": 1,
-                "temp_threshold": 22,
+                "optimal_hours": [WATERING_HOUR_EARLY_MORNING, WATERING_HOUR_MID_MORNING, WATERING_HOUR_LATE_MORNING_1],
+                "frequency_days": WATERING_FREQ_DAILY,
+                "temp_threshold": PLANT_MIN_TEMP_BASIL,
                 "sunshine": "Full sun"
             },
             "herb": {
                 "water_needs": "medium",
                 "drought_tolerance": "medium",
-                "optimal_hours": [7, 8],
-                "frequency_days": 2,
-                "temp_threshold": 18,
+                "optimal_hours": [WATERING_HOUR_MID_MORNING, WATERING_HOUR_LATE_MORNING_1],
+                "frequency_days": WATERING_FREQ_EVERY_2_DAYS,
+                "temp_threshold": PLANT_MIN_TEMP_MINT,
                 "sunshine": "Full sun to partial shade"
             },
             "flower": {
                 "water_needs": "medium",
                 "drought_tolerance": "medium",
-                "optimal_hours": [7, 8],
-                "frequency_days": 2,
-                "temp_threshold": 20,
+                "optimal_hours": [WATERING_HOUR_MID_MORNING, WATERING_HOUR_LATE_MORNING_1],
+                "frequency_days": WATERING_FREQ_EVERY_2_DAYS,
+                "temp_threshold": PLANT_MIN_TEMP_ROSE,
                 "sunshine": "Full sun to partial shade"
             },
             "tree": {
                 "water_needs": "medium",
                 "drought_tolerance": "medium",
-                "optimal_hours": [7, 8],
-                "frequency_days": 3,
-                "temp_threshold": 18,
+                "optimal_hours": [WATERING_HOUR_MID_MORNING, WATERING_HOUR_LATE_MORNING_1],
+                "frequency_days": WATERING_FREQ_EVERY_3_DAYS,
+                "temp_threshold": PLANT_MIN_TEMP_MINT,
                 "sunshine": "Full sun"
             },
             "shrub": {
                 "water_needs": "medium",
                 "drought_tolerance": "medium",
-                "optimal_hours": [8, 9],
-                "frequency_days": 2,
-                "temp_threshold": 18,
+                "optimal_hours": [WATERING_HOUR_LATE_MORNING_1, WATERING_HOUR_LATE_MORNING_2],
+                "frequency_days": WATERING_FREQ_EVERY_2_DAYS,
+                "temp_threshold": PLANT_MIN_TEMP_MINT,
                 "sunshine": "Full sun to partial shade"
             },
             "grass": {
                 "water_needs": "medium",
                 "drought_tolerance": "low",
-                "optimal_hours": [6, 7],
-                "frequency_days": 2,
-                "temp_threshold": 20,
+                "optimal_hours": [WATERING_HOUR_EARLY_MORNING, WATERING_HOUR_MID_MORNING],
+                "frequency_days": WATERING_FREQ_EVERY_2_DAYS,
+                "temp_threshold": PLANT_MIN_TEMP_ROSE,
                 "sunshine": "Full sun"
             }
         }
